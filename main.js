@@ -100,6 +100,9 @@ function raytrace(scene) {
         let lightVector = lightPos.subtract(intersection);
         lightVector = lightVector.normalize();
         let color = new Vector(scene.lights[0].color);
+        //console.log(color);
+        //console.log(o.lambert(o.color, color, normal, lightVector).scaleBy(255));
+        //console.log(o.color.components[0]* color.components);
         setPixel(
           i,
           j,

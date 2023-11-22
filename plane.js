@@ -18,8 +18,8 @@ export class Plane extends Primitive {
   intersect(e, d) {
     return this._tFinden(e, d, this.point, this.normal);
   }
-  getNormal(intersection){
-    
+  getNormal(intersection) {
+    this.normal = this.normal.normalize();
     return this.normal;
   }
 }
