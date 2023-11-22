@@ -39,7 +39,7 @@ export class Sphere extends Primitive {
   }
 
   getNormal(intersection) {
-    let normal = this.center.subtract(intersection);
+    let normal = intersection.subtract(this.center);
     normal = normal.normalize();
     return normal;
   }

@@ -18,7 +18,7 @@ export class Primitive {
       color.components[1] * intensity.components[1],
       color.components[2] * intensity.components[2]
     );
-    console.log(colorVector.scaleBy(nl));
+    //console.log(colorVector.scaleBy(nl));
     //console.log(nl);
     let L = colorVector.scaleBy(nl); //color.scaleBy(nl);
     //console.log(L);

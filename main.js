@@ -92,9 +92,7 @@ function raytrace(scene) {
         }
       }
       if (o) {
-        d = d.normalize();
         let intersection = eye.add(d.scaleBy(min));
-
         let normal = o.getNormal(intersection);
         let lightPos = new Vector(scene.lights[0].position);
         let lightVector = lightPos.subtract(intersection);
