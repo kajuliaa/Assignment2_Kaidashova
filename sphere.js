@@ -2,10 +2,11 @@ import { Vector } from "./library/vector.js";
 import { Primitive } from "./primitive.js";
 
 export class Sphere extends Primitive {
-  constructor(color, center, radius) {
+  constructor(color, center, radius, ambient) {
     super(color);
     this.center = center;
     this.radius = radius;
+    this.ambient = new Vector(ambient);
   }
 
   _diskriminant(e, d, c, r) {

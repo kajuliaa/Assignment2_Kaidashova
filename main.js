@@ -64,12 +64,12 @@ function raytrace(scene) {
     color = color.scaleBy(255);
     if (surface.type === "sphere") {
       let center = new Vector(surface.center);
-      let sphere = new Sphere(color, center, surface.radius);
+      let sphere = new Sphere(color, center, surface.radius, surface.ambient);
       return sphere;
     } else {
       let point = new Vector(surface.point);
       let normal = new Vector(surface.normal);
-      let plane = new Plane(color, point, normal);
+      let plane = new Plane(color, point, normal, surface.ambient);
       return plane;
     }
   });
@@ -98,13 +98,18 @@ function raytrace(scene) {
         let lightVector = lightPos.subtract(intersection);
         lightVector = lightVector.normalize();
         let color = new Vector(scene.lights[0].color);
+        let ambient = o.ambient;
+        let vVector = lightPos.subtract(intersection);
+        let hVector = vVector.add(lightVector).normalize();
+        
+        //console.log(ambient);
         //console.log(color);
         //console.log(o.lambert(o.color, color, normal, lightVector).scaleBy(255));
         //console.log(o.color.components[0]* color.components);
         setPixel(
           i,
           j,
-          o.lambert(o.color, color, normal, lightVector).components
+          o.lambert(o.color, color, normal, lightVector, ambient, hVector).components
         );
       } else {
         setPixel(i, j, BLACK.components);
