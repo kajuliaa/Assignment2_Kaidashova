@@ -61,15 +61,28 @@ function raytrace(scene) {
 
   let objects = scene.surfaces.map((surface) => {
     let color = new Vector(surface.diffuse);
-    color = color.scaleBy(255);
     if (surface.type === "sphere") {
       let center = new Vector(surface.center);
-      let sphere = new Sphere(color, center, surface.radius, surface.ambient);
+      let sphere = new Sphere(
+        color,
+        center,
+        surface.radius,
+        surface.ambient,
+        surface.specular,
+        surface.phong_exponent
+      );
       return sphere;
     } else {
       let point = new Vector(surface.point);
       let normal = new Vector(surface.normal);
-      let plane = new Plane(color, point, normal, surface.ambient);
+      let plane = new Plane(
+        color,
+        point,
+        normal,
+        surface.ambient,
+        surface.specular,
+        surface.phong_exponent
+      );
       return plane;
     }
   });
@@ -97,19 +110,30 @@ function raytrace(scene) {
         let lightPos = new Vector(scene.lights[0].position);
         let lightVector = lightPos.subtract(intersection);
         lightVector = lightVector.normalize();
+        //console.log(lightVector);
         let color = new Vector(scene.lights[0].color);
         let ambient = o.ambient;
-        let vVector = lightPos.subtract(intersection);
-        let hVector = vVector.add(lightVector).normalize();
-        
-        //console.log(ambient);
-        //console.log(color);
-        //console.log(o.lambert(o.color, color, normal, lightVector).scaleBy(255));
-        //console.log(o.color.components[0]* color.components);
+        let vVector = eye.subtract(intersection); //v Vector
+        vVector = vVector.normalize();
+        let hVector = vVector.add(lightVector);
+        hVector = hVector.normalize(); // h Vector
+        let specular = o.specular;
+        //console.log(specular);
+        let phong_exponent = o.phong_exponent.components;
+
         setPixel(
           i,
           j,
-          o.lambert(o.color, color, normal, lightVector, ambient, hVector).components
+          o.showLight(
+            o.color,
+            color,
+            normal,
+            lightVector,
+            ambient,
+            hVector,
+            specular,
+            phong_exponent
+          ).components
         );
       } else {
         setPixel(i, j, BLACK.components);
