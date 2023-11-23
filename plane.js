@@ -1,13 +1,14 @@
 import { Vector } from "./library/vector.js";
 import { Primitive } from "./primitive.js";
 export class Plane extends Primitive {
-  constructor(color, point, normal, ambient, specular, phong_exponent) {
+  constructor(color, point, normal, ambient, specular, phong_exponent, mirror) {
     super(color);
     this.point = point;
     this.normal = normal;
     this.ambient = new Vector(ambient);
     this.specular = new Vector(specular);
     this.phong_exponent = new Vector(phong_exponent);
+    this.mirror = new Vector(mirror);
   }
   _tFinden(e, d, p, n) {
     let beding = d.dotProduct(n);

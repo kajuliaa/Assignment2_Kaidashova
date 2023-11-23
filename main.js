@@ -69,7 +69,8 @@ function raytrace(scene) {
         surface.radius,
         surface.ambient,
         surface.specular,
-        surface.phong_exponent
+        surface.phong_exponent,
+        surface.mirror
       );
       return sphere;
     } else {
@@ -81,7 +82,8 @@ function raytrace(scene) {
         normal,
         surface.ambient,
         surface.specular,
-        surface.phong_exponent
+        surface.phong_exponent,
+        surface.mirror
       );
       return plane;
     }
@@ -110,17 +112,23 @@ function raytrace(scene) {
         let lightPos = new Vector(scene.lights[0].position);
         let lightVector = lightPos.subtract(intersection);
         lightVector = lightVector.normalize();
-        //console.log(lightVector);
         let color = new Vector(scene.lights[0].color);
+        //ambient shading
         let ambient = o.ambient;
+        //Blinn-Phong shading
         let vVector = eye.subtract(intersection); //v Vector
         vVector = vVector.normalize();
         let hVector = vVector.add(lightVector);
         hVector = hVector.normalize(); // h Vector
         let specular = o.specular;
-        //console.log(specular);
         let phong_exponent = o.phong_exponent.components;
-
+        //ideal specular reflection
+        //we need to look to formula
+        let directionVector = vVector.negate();
+        let rVector = directionVector.subtract(
+          normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
+        );
+        //console.log(rVector);
         setPixel(
           i,
           j,
@@ -132,7 +140,9 @@ function raytrace(scene) {
             ambient,
             hVector,
             specular,
-            phong_exponent
+            phong_exponent,
+            o.mirror,
+            rVector
           ).components
         );
       } else {

@@ -16,7 +16,9 @@ export class Primitive {
     ambient,
     hVector,
     specular,
-    phong_exponent
+    phong_exponent,
+    mirror,
+    rVector
   ) {
     let nl = normal.dotProduct(light);
     if (nl < 0) {
@@ -45,10 +47,17 @@ export class Primitive {
       color.components[1] * ambient.components[1],
       color.components[2] * ambient.components[2]
     );
+    //Ideal specular reflektion
+    let IdealSpecular = new Vector(
+      mirror.components[0] * rVector.components[0],
+      mirror.components[1] * rVector.components[1],
+      mirror.components[2] * rVector.components[2]
+    );
     //console.log(colorVectorSpecular);
     let L = ambientVector
       .add(colorVectorDiffuse.scaleBy(nl))
       .add(colorVectorSpecular.scaleBy(nh))
+      .add(IdealSpecular)
       .scaleBy(255);
     return L;
   }
