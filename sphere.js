@@ -3,21 +3,17 @@ import { Primitive } from "./primitive.js";
 
 export class Sphere extends Primitive {
   constructor(
-    color,
-    center,
-    radius,
+    diffuse,
     ambient,
     specular,
     phong_exponent,
-    mirror
+    mirror,
+    center,
+    radius,
   ) {
-    super(color);
-    this.center = center;
+    super(diffuse,ambient,specular,phong_exponent,mirror);
+    this.center = new Vector(center);
     this.radius = radius;
-    this.ambient = new Vector(ambient);
-    this.specular = new Vector(specular);
-    this.phong_exponent = new Vector(phong_exponent);
-    this.mirror = new Vector(mirror);
   }
 
   _diskriminant(e, d, c, r) {
@@ -29,25 +25,25 @@ export class Sphere extends Primitive {
     return diskri;
   }
 
-  _tFinden(e, d, c, r) {
-    let diskrim = this._diskriminant(e, d, c, r);
-    let ec = e.subtract(c);
-    let invertD = d.negate();
-    if (diskrim >= 0) {
-      let t1 = (invertD.dotProduct(ec) + Math.sqrt(diskrim)) / d.dotProduct(d);
-      let t2 = (invertD.dotProduct(ec) - Math.sqrt(diskrim)) / d.dotProduct(d);
-      if (t1 <= t2) {
-        return t1;
-      } else {
-        return t2;
-      }
-    } else {
-      return -1;
+  _tFinden(eye, rayDir) {
+    const d_dot_d = rayDir.dotProduct(rayDir)
+    let e_minus_c = eye.subtract(this.center)
+    let d_dot_emc = rayDir.dotProduct(e_minus_c)
+    let emc_dot_emc = (e_minus_c.dotProduct(e_minus_c))
+    let discriminant = Math.pow(d_dot_emc,2) - d_dot_d*(emc_dot_emc - Math.pow(this.radius,2))
+    let t_ = -1
+    if (discriminant >= 0) {
+        t_ = (-d_dot_emc - Math.pow(discriminant,0.5))/d_dot_d
+        if (t_ < 0) {
+            t_ = (-d_dot_emc + Math.pow(discriminant,0.5))/d_dot_d
+        }
     }
+    const EPSILON = 0.00000001
+    return t_ > EPSILON ? t_ : -1
   }
 
   intersect(e, d) {
-    return this._tFinden(e, d, this.center, this.radius);
+    return this._tFinden(e, d);
   }
 
   getNormal(intersection) {

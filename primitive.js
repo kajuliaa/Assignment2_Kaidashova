@@ -1,17 +1,24 @@
 import { EPSILON } from "./library/constants.js";
 import { Vector } from "./library/vector.js";
 export class Primitive {
-  constructor(color) {
-    this.color = color;
+  constructor(diffuse,
+    ambient,
+    specular,
+    phong_exponent,
+    mirror) {
+    this.diffuse = new Vector(diffuse);
+    this.ambient = new Vector(ambient);
+    this.specular = new Vector(specular);
+    this.phong_exponent = new Vector(phong_exponent);
+    this.mirror = new Vector(mirror);
   }
 
   printColor() {
-    console.log(this.color);
+    console.log(this.diffuse);
+    
   }
 
   showLight(
-    color,
-    intensity,
     normal,
     ambient,
     vVector,
@@ -19,11 +26,10 @@ export class Primitive {
     phong_exponent,
     mirror,
     rVector,
-    shadows,
     lights,
-    intersection
+    intersection,
+    objects
   ) {
-    console.log(lights);
     let summaryLight = new Vector(0, 0, 0);
     for (let l of lights) {
       //console.log(l);
@@ -31,6 +37,18 @@ export class Primitive {
       //console.log(lightPos);
       let lightVector = lightPos.subtract(intersection);
       lightVector = lightVector.normalize();
+
+      //shadows
+      let shadows = false;
+      let length = lightPos.subtract(intersection).length()
+      for (let obj of objects) {
+        let objDist = obj.intersect(intersection, lightVector);
+        if (objDist == -1 || objDist >= length) continue;
+        shadows = true;
+        break;
+      }
+      if (shadows) continue
+
       let color = l.color;
       let hVector = vVector.add(lightVector);
       hVector = hVector.normalize(); // h Vector
@@ -45,9 +63,9 @@ export class Primitive {
       }
       nh = Math.pow(nh, phong_exponent); //phong exponent pow
       let colorVectorDiffuse = new Vector(
-        color.components[0] * l.color.components[0],
-        color.components[1] * l.color.components[1],
-        color.components[2] * l.color.components[2]
+        this.diffuse.components[0] * l.color.components[0],
+        this.diffuse.components[1] * l.color.components[1],
+        this.diffuse.components[2] * l.color.components[2]
       );
       let colorVectorSpecular = new Vector(
         l.color.components[0] * specular.components[0],
@@ -85,11 +103,6 @@ export class Primitive {
     );
     //console.log(summaryLight);
     //console.log(colorVectorSpecular);
-    let L = ambientVector.add(summaryLight).scaleBy(255);
-    if (shadows) {
-      return ambientVector.scaleBy(255);
-    } else {
-      return L;
-    }
+    return ambientVector.add(summaryLight).scaleBy(255);
   }
 }

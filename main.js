@@ -62,30 +62,25 @@ function raytrace(scene) {
   let V = w.crossProduct(U);
 
   let objects = scene.surfaces.map((surface) => {
-    let color = new Vector(surface.diffuse);
     if (surface.type === "sphere") {
-      let center = new Vector(surface.center);
-      let sphere = new Sphere(
-        color,
-        center,
-        surface.radius,
+      return new Sphere(
+        surface.diffuse,
         surface.ambient,
         surface.specular,
         surface.phong_exponent,
-        surface.mirror
+        surface.mirror,
+        surface.center,
+        surface.radius
       );
-      return sphere;
     } else {
-      let point = new Vector(surface.point);
-      let normal = new Vector(surface.normal);
       let plane = new Plane(
-        color,
-        point,
-        normal,
+        surface.diffuse,
         surface.ambient,
         surface.specular,
         surface.phong_exponent,
-        surface.mirror
+        surface.mirror,
+        surface.point,
+        surface.normal
       );
       return plane;
     }
@@ -137,35 +132,24 @@ function raytrace(scene) {
         let rVector = directionVector.subtract(
           normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
         );
-        //shadows
 
-        //let shadowVector = lightPos.subtract(intersection);
-        let shadows = false;
-        /*for (let obj of objects) {
-          let objDist = obj.intersect(intersection, shadowVector);
-          if (objDist === -1 || objDist < 0) continue;
-          if (obj == o) continue;
-          shadows = true;
-          break;
-        }*/
+        const light = o.showLight(
+          normal,
+          ambient,
+          vVector,
+          specular,
+          phong_exponent,
+          o.mirror,
+          rVector,
+          lights,
+          intersection,
+          objects
+        ).components
 
         setPixel(
           i,
           j,
-          o.showLight(
-            o.color,
-            color,
-            normal,
-            ambient,
-            vVector,
-            specular,
-            phong_exponent,
-            o.mirror,
-            rVector,
-            shadows,
-            lights,
-            intersection
-          ).components
+          light
         );
       } else {
         setPixel(i, j, BLACK.components);
