@@ -19,6 +19,7 @@ import { toRadians } from "./library/utils.js";
 import { Vector } from "./library/vector.js";
 import { Sphere } from "./sphere.js";
 import { Plane } from "./plane.js";
+import { Light } from "./light.js";
 import { EPSILON } from "./library/constants.js";
 
 var scene = null;
@@ -90,6 +91,12 @@ function raytrace(scene) {
     }
   });
 
+  let lights = scene.lights.map((lighting) => {
+    let light = new Light(lighting.position, lighting.color);
+    return light;
+  });
+  //console.log(lights);
+
   const BLACK = new Vector([0, 0, 0]);
   for (var i = 0; i < scene.width; i += 1) {
     for (var j = 0; j < scene.height; j += 1) {
@@ -100,7 +107,8 @@ function raytrace(scene) {
       let d = w.scaleBy(-len).add(U.scaleBy(u)).add(V.scaleBy(v));
       for (let obj of objects) {
         let objDist = obj.intersect(eye, d);
-        if (objDist === -1) continue;
+        if (objDist === -1 || objDist < 0) continue;
+
         if (objDist < min) {
           min = objDist;
           o = obj;
@@ -110,17 +118,17 @@ function raytrace(scene) {
       if (o) {
         let intersection = eye.add(d.scaleBy(min));
         let normal = o.getNormal(intersection);
-        let lightPos = new Vector(scene.lights[0].position);
-        let lightVector = lightPos.subtract(intersection);
-        lightVector = lightVector.normalize();
-        let color = new Vector(scene.lights[0].color);
+        //let lightPos = new Vector(l.position);
+        //let lightVector = lightPos.subtract(intersection);
+        //lightVector = lightVector.normalize();
+        //let color = new Vector(l.color);
         //ambient shading
         let ambient = o.ambient;
         //Blinn-Phong shading
         let vVector = eye.subtract(intersection); //v Vector
         vVector = vVector.normalize();
-        let hVector = vVector.add(lightVector);
-        hVector = hVector.normalize(); // h Vector
+        //let hVector = vVector.add(lightVector);
+        //hVector = hVector.normalize(); // h Vector
         let specular = o.specular;
         let phong_exponent = o.phong_exponent.components;
         //ideal specular reflection
