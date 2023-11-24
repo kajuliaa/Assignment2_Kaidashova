@@ -33,7 +33,7 @@ export class Sphere extends Primitive {
     let diskrim = this._diskriminant(e, d, c, r);
     let ec = e.subtract(c);
     let invertD = d.negate();
-    if ((diskrim) => 0) {
+    if (diskrim >= 0) {
       let t1 = (invertD.dotProduct(ec) + Math.sqrt(diskrim)) / d.dotProduct(d);
       let t2 = (invertD.dotProduct(ec) - Math.sqrt(diskrim)) / d.dotProduct(d);
       if (t1 <= t2) {

@@ -1,3 +1,4 @@
+import { EPSILON } from "./library/constants.js";
 import { Vector } from "./library/vector.js";
 export class Primitive {
   constructor(color) {
@@ -18,7 +19,8 @@ export class Primitive {
     specular,
     phong_exponent,
     mirror,
-    rVector
+    rVector,
+    shadows
   ) {
     let nl = normal.dotProduct(light);
     if (nl < 0) {
@@ -43,9 +45,9 @@ export class Primitive {
     );
 
     let ambientVector = new Vector(
-      color.components[0] * ambient.components[0],
-      color.components[1] * ambient.components[1],
-      color.components[2] * ambient.components[2]
+      0.2 * ambient.components[0],
+      0.2 * ambient.components[1],
+      0.2 * ambient.components[2]
     );
     //Ideal specular reflektion
     let IdealSpecular = new Vector(
@@ -57,8 +59,11 @@ export class Primitive {
     let L = ambientVector
       .add(colorVectorDiffuse.scaleBy(nl))
       .add(colorVectorSpecular.scaleBy(nh))
-      .add(IdealSpecular)
       .scaleBy(255);
-    return L;
+    if (shadows) {
+      return ambientVector.scaleBy(255);
+    } else {
+      return L;
+    }
   }
 }

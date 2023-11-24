@@ -19,6 +19,7 @@ import { toRadians } from "./library/utils.js";
 import { Vector } from "./library/vector.js";
 import { Sphere } from "./sphere.js";
 import { Plane } from "./plane.js";
+import { EPSILON } from "./library/constants.js";
 
 var scene = null;
 document.getElementById("submit").onclick = async function () {
@@ -90,7 +91,6 @@ function raytrace(scene) {
   });
 
   const BLACK = new Vector([0, 0, 0]);
-
   for (var i = 0; i < scene.width; i += 1) {
     for (var j = 0; j < scene.height; j += 1) {
       let min = 10000;
@@ -106,6 +106,7 @@ function raytrace(scene) {
           o = obj;
         }
       }
+
       if (o) {
         let intersection = eye.add(d.scaleBy(min));
         let normal = o.getNormal(intersection);
@@ -123,12 +124,22 @@ function raytrace(scene) {
         let specular = o.specular;
         let phong_exponent = o.phong_exponent.components;
         //ideal specular reflection
-        //we need to look to formula
+
         let directionVector = vVector.negate();
         let rVector = directionVector.subtract(
           normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
         );
-        //console.log(rVector);
+        //shadows
+        let shadowVector = lightPos.subtract(intersection);
+        let shadows = false;
+        for (let obj of objects) {
+          let objDist = obj.intersect(intersection, shadowVector);
+          if (objDist === -1) continue;
+          if (obj == o) continue;
+          shadows = true;
+          break;
+        }
+
         setPixel(
           i,
           j,
@@ -142,7 +153,8 @@ function raytrace(scene) {
             specular,
             phong_exponent,
             o.mirror,
-            rVector
+            rVector,
+            shadows
           ).components
         );
       } else {
