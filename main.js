@@ -62,30 +62,25 @@ function raytrace(scene) {
   let V = w.crossProduct(U);
 
   let objects = scene.surfaces.map((surface) => {
-    let color = new Vector(surface.diffuse);
     if (surface.type === "sphere") {
-      let center = new Vector(surface.center);
-      let sphere = new Sphere(
-        color,
-        center,
-        surface.radius,
+      return new Sphere(
+        surface.diffuse,
         surface.ambient,
         surface.specular,
         surface.phong_exponent,
-        surface.mirror
+        surface.mirror,
+        surface.center,
+        surface.radius
       );
-      return sphere;
     } else {
-      let point = new Vector(surface.point);
-      let normal = new Vector(surface.normal);
       let plane = new Plane(
-        color,
-        point,
-        normal,
+        surface.diffuse,
         surface.ambient,
         surface.specular,
         surface.phong_exponent,
-        surface.mirror
+        surface.mirror,
+        surface.point,
+        surface.normal
       );
       return plane;
     }
@@ -137,28 +132,18 @@ function raytrace(scene) {
         let rVector = directionVector.subtract(
           normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
         );
-        //shadows
-        let shadows = false;
-        let length = lightPos.subtract(intersection).length()
-        for (let obj of objects) {
-          let objDist = obj.intersect(intersection, lightVector);
-          if (objDist == -1 || objDist >= length) continue;
-          shadows = true;
-          break;
-        }
 
         const light = o.showLight(
-          o.color,
-          color,
           normal,
-          lightVector,
           ambient,
-          hVector,
+          vVector,
           specular,
           phong_exponent,
           o.mirror,
           rVector,
-          shadows
+          lights,
+          intersection,
+          objects
         ).components
 
         setPixel(

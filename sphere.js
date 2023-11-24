@@ -3,21 +3,17 @@ import { Primitive } from "./primitive.js";
 
 export class Sphere extends Primitive {
   constructor(
-    color,
-    center,
-    radius,
+    diffuse,
     ambient,
     specular,
     phong_exponent,
-    mirror
+    mirror,
+    center,
+    radius,
   ) {
-    super(color);
-    this.center = center;
+    super(diffuse,ambient,specular,phong_exponent,mirror);
+    this.center = new Vector(center);
     this.radius = radius;
-    this.ambient = new Vector(ambient);
-    this.specular = new Vector(specular);
-    this.phong_exponent = new Vector(phong_exponent);
-    this.mirror = new Vector(mirror);
   }
 
   _diskriminant(e, d, c, r) {

@@ -1,14 +1,16 @@
 import { Vector } from "./library/vector.js";
 import { Primitive } from "./primitive.js";
 export class Plane extends Primitive {
-  constructor(color, point, normal, ambient, specular, phong_exponent, mirror) {
-    super(color);
-    this.point = point;
-    this.normal = normal;
-    this.ambient = new Vector(ambient);
-    this.specular = new Vector(specular);
-    this.phong_exponent = new Vector(phong_exponent);
-    this.mirror = new Vector(mirror);
+  constructor(diffuse, 
+    ambient, 
+    specular, 
+    phong_exponent, 
+    mirror,
+    point, 
+    normal) {
+    super(diffuse, ambient, specular, phong_exponent, mirror);
+    this.point = new Vector(point);
+    this.normal = new Vector(normal);
   }
   _tFinden(eye, rayDir) {
     const EPSILON = 0.00000001
