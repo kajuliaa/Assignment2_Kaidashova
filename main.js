@@ -100,6 +100,7 @@ function raytrace(scene) {
       let u = l + ((r - l) * (i + 0.5)) / scene.width;
       let v = -(b + ((t - b) * (j + 0.5)) / scene.height);
       let d = w.scaleBy(-len).add(U.scaleBy(u)).add(V.scaleBy(v));
+      
       for (let obj of objects) {
         let objDist = obj.intersect(eye, d);
         if (objDist === -1 || objDist < 0) continue;
@@ -111,38 +112,11 @@ function raytrace(scene) {
       }
 
       if (o) {
-        let intersection = eye.add(d.scaleBy(min));
-        let normal = o.getNormal(intersection);
-        //let lightPos = new Vector(l.position);
-        //let lightVector = lightPos.subtract(intersection);
-        //lightVector = lightVector.normalize();
-        //let color = new Vector(l.color);
-        //ambient shading
-        let ambient = o.ambient;
-        //Blinn-Phong shading
-        let vVector = eye.subtract(intersection); //v Vector
-        vVector = vVector.normalize();
-        //let hVector = vVector.add(lightVector);
-        //hVector = hVector.normalize(); // h Vector
-        let specular = o.specular;
-        let phong_exponent = o.phong_exponent.components;
-        //ideal specular reflection
-
-        let directionVector = vVector.negate();
-        let rVector = directionVector.subtract(
-          normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
-        );
-
         const light = o.showLight(
-          normal,
-          ambient,
-          vVector,
-          specular,
-          phong_exponent,
-          o.mirror,
-          rVector,
+          eye,
+          d,
+          min,
           lights,
-          intersection,
           objects
         ).components
 
