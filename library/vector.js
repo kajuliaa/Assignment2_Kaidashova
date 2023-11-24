@@ -31,6 +31,11 @@ class Vector {
       ...this.components.map(component => component * number)
     )
   }
+  mul({ components }){
+    return new Vector(
+      ...components.map((component, index) => this.components[index] * component)
+    )
+  }
   length() {
     return Math.hypot(...this.components)
   }

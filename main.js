@@ -21,6 +21,7 @@ import { Sphere } from "./sphere.js";
 import { Plane } from "./plane.js";
 import { Light } from "./light.js";
 import { EPSILON } from "./library/constants.js";
+import { findClosestIntersection } from "./primitive.js";
 
 var scene = null;
 document.getElementById("submit").onclick = async function () {
@@ -95,21 +96,13 @@ function raytrace(scene) {
   const BLACK = new Vector([0, 0, 0]);
   for (var i = 0; i < scene.width; i += 1) {
     for (var j = 0; j < scene.height; j += 1) {
-      let min = 10000;
-      let o = null;
       let u = l + ((r - l) * (i + 0.5)) / scene.width;
       let v = -(b + ((t - b) * (j + 0.5)) / scene.height);
       let d = w.scaleBy(-len).add(U.scaleBy(u)).add(V.scaleBy(v));
       
-      for (let obj of objects) {
-        let objDist = obj.intersect(eye, d);
-        if (objDist === -1 || objDist < 0) continue;
-
-        if (objDist < min) {
-          min = objDist;
-          o = obj;
-        }
-      }
+      const result = findClosestIntersection(objects, eye, d)
+      const o = result.object
+      const min = result.t
 
       if (o) {
         const light = o.showLight(
@@ -118,7 +111,7 @@ function raytrace(scene) {
           min,
           lights,
           objects
-        ).components
+        ).scaleBy(255).components
 
         setPixel(
           i,

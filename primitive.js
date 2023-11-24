@@ -1,6 +1,23 @@
 import { EPSILON } from "./library/constants.js";
 import { Vector } from "./library/vector.js";
+
+export function findClosestIntersection(objects, eye, d){
+  let min = 10000;
+  let o = null;
+  for (let obj of objects) {
+    let objDist = obj.intersect(eye, d);
+    if (objDist === -1 || objDist < 0) continue;
+
+    if (objDist < min) {
+      min = objDist;
+      o = obj;
+    }
+  }
+  return { object: o, t: min }
+}
+
 export class Primitive {
+  
   constructor(diffuse,
     ambient,
     specular,
@@ -29,11 +46,6 @@ export class Primitive {
     let vVector = eye.subtract(intersection); //v Vector
     vVector = vVector.normalize();
     const normal = this.getNormal(intersection)
-
-    let directionVector = vVector.negate();
-    let rVector = directionVector.subtract(
-      normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
-    );
 
     let summaryLight = new Vector(0, 0, 0);
     for (let l of lights) {
@@ -67,16 +79,8 @@ export class Primitive {
         nh = 0;
       }
       nh = Math.pow(nh, this.phong_exponent); //phong exponent pow
-      let colorVectorDiffuse = new Vector(
-        this.diffuse.components[0] * l.color.components[0],
-        this.diffuse.components[1] * l.color.components[1],
-        this.diffuse.components[2] * l.color.components[2]
-      );
-      let colorVectorSpecular = new Vector(
-        l.color.components[0] * this.specular.components[0],
-        l.color.components[1] * this.specular.components[1],
-        l.color.components[2] * this.specular.components[2]
-      );
+      let colorVectorDiffuse = this.diffuse.mul(l.color);
+      let colorVectorSpecular = this.specular.mul(l.color);
 
       summaryLight = summaryLight
         .add(colorVectorDiffuse.scaleBy(nl))
@@ -84,31 +88,20 @@ export class Primitive {
       //console.log(summaryLight);
     }
 
-    /*let colorVectorDiffuse = new Vector(
-      color.components[0] * intensity.components[0],
-      color.components[1] * intensity.components[1],
-      color.components[2] * intensity.components[2]
-    );*/
-    /*let colorVectorSpecular = new Vector(
-      intensity.components[0] * specular.components[0],
-      intensity.components[1] * specular.components[1],
-      intensity.components[2] * specular.components[2]
-    );*/
+    let ambientVector = this.ambient.scaleBy(0.2);
 
-    let ambientVector = new Vector(
-      0.2 * this.ambient.components[0],
-      0.2 * this.ambient.components[1],
-      0.2 * this.ambient.components[2]
-    );
-    
-    //Ideal specular reflektion
-    let IdealSpecular = new Vector(
-      this.mirror.components[0] * rVector.components[0],
-      this.mirror.components[1] * rVector.components[1],
-      this.mirror.components[2] * rVector.components[2]
-    );
-    //console.log(summaryLight);
-    //console.log(colorVectorSpecular);
-    return ambientVector.add(summaryLight).scaleBy(255);
+    if(this.mirror.components[0] > 0 && this.mirror.components[1] > 0 && this.mirror.components[2] > 0){
+      let directionVector = vVector.negate();
+      let rVector = directionVector.subtract(
+        normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
+      );
+  
+      const result = findClosestIntersection(objects, intersection, rVector)
+      if(result.object){
+        const c = result.object.showLight(intersection,rVector,result.t,lights,objects)
+        summaryLight = summaryLight.add(c.mul(this.mirror))
+      }
+    }
+    return ambientVector.add(summaryLight);
   }
 }
