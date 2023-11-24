@@ -139,22 +139,24 @@ function raytrace(scene) {
           break;
         }
 
+        const light = o.showLight(
+          o.color,
+          color,
+          normal,
+          lightVector,
+          ambient,
+          hVector,
+          specular,
+          phong_exponent,
+          o.mirror,
+          rVector,
+          shadows
+        ).components
+
         setPixel(
           i,
           j,
-          o.showLight(
-            o.color,
-            color,
-            normal,
-            lightVector,
-            ambient,
-            hVector,
-            specular,
-            phong_exponent,
-            o.mirror,
-            rVector,
-            shadows
-          ).components
+          light
         );
       } else {
         setPixel(i, j, BLACK.components);
