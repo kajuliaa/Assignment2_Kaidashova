@@ -130,12 +130,11 @@ function raytrace(scene) {
           normal.scaleBy(2).scaleBy(directionVector.dotProduct(normal))
         );
         //shadows
-        let shadowVector = lightPos.subtract(intersection);
         let shadows = false;
+        let length = lightPos.subtract(intersection).length()
         for (let obj of objects) {
-          let objDist = obj.intersect(intersection, shadowVector);
-          if (objDist === -1) continue;
-          if (obj == o) continue;
+          let objDist = obj.intersect(intersection, lightVector);
+          if (objDist == -1 || objDist >= length) continue;
           shadows = true;
           break;
         }
